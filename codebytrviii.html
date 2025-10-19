@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Thư Tình Yêu 3D</title>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&family=Quicksand:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --envelope-color: #f7a8b8; /* Hồng Pastel */
+            --flap-color: #fce4ec; /* Hồng rất nhạt */
+            --paper-color: #ffffff;
+            --text-color: #333;
+            --heart-color: #ff4d6d;
+            --envelope-width: 500px; /* Chiều ngang phong bì */
+            --envelope-height: 400px; /* Chiều cao phong bì */
+        }
+
+        body {
+            display: flex;
+            justify-content: flex-end; /* ĐẨY TOÀN BỘ NỘI DUNG SANG PHẢI */
+            align-items: center;
+            min-height: 100vh;
+            background: linear-gradient(135deg, #f0f0f5, #e0e0e0);
+            margin: 0;
+            font-family: 'Quicksand', sans-serif;
+            overflow: hidden;
+            padding-right: 50px; /* Khoảng cách từ lề phải */
+        }
+
+        .envelope-container {
+            position: relative;
+            perspective: 1000px;
+            cursor: pointer;
+            z-index: 10;
+        }
+
+        /* 1. KHUNG PHONG BÌ */
+        .envelope {
+            width: var(--envelope-width);
+            height: var(--envelope-height);
+            background-color: var(--envelope-color);
+            border-radius: 10px;
+            box-shadow: 0 15px 30px rgba(0, 0, 0, 0.4);
+            position: relative;
+            transition: transform 0.6s ease-in-out;
+        }
+
+        /* 2. NẮP PHONG BÌ (Tự điều chỉnh theo kích thước) */
+        .flap {
+            position: absolute;
+            top: 0;
+            left: 0;
+            border-style: solid;
+            border-width: calc(var(--envelope-height) / 2) calc(var(--envelope-width) / 2) 0 calc(var(--envelope-width) / 2);
+            border-color: var(--flap-color) transparent transparent transparent;
+            transform-origin: top;
+            transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            z-index: 5;
+        }
+
+        /* 3. LÁ THƯ BÊN TRONG (Nền trắng) */
+        .letter {
+            position: absolute;
+            top: 0;
+            left: 5%;
+            width: 90%; 
+            height: 100%; /* SỬA: Đặt lại 100% để vừa với phong bì */
+            background-color: var(--paper-color);
+            border-radius: 6px;
+            padding: 20px;
+            box-sizing: border-box;
+            color: var(--text-color);
+            font-family: 'Pacifico', cursive;
+            
+            /* TỐI ƯU CHO NỘI DUNG DÀI */
+            font-size: 15px; /* Giảm cỡ chữ */
+            text-align: left; /* Căn trái để dễ đọc */
+            line-height: 1.4; /* Giãn dòng vừa phải */
+            overflow-y: auto; /* THÊM THANH CUỘN để khắc phục lỗi tràn */
+            
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+            z-index: 4;
+            
+            /* Ban đầu ẩn sâu bên trong */
+            transform: translateY(calc(var(--envelope-height) - 10px));
+            transition: transform 1.2s cubic-bezier(0.68, -0.55, 0.27, 1.55) 0.5s;
+            opacity: 0;
+        }
+        
+        /* Chú thích hướng dẫn */
+        #hint {
+            margin-top: 30px; /* Khoảng cách từ phong bì */
+            margin-right: 0; /* Giữ nguyên căn phải */
+            margin-left: 70px; /* Điều chỉnh vị trí ngang so với khối chứa */
+            color: #666;
+            font-size: 1.2em;
+            animation: pulse-hint 2s infinite;
+        }
+
+        /* TRẠNG THÁI MỞ */
+        .envelope-container.open .flap {
+            transform: rotateX(180deg);
+            z-index: 2;
+        }
+
+        .envelope-container.open .letter {
+            /* SỬA VỊ TRÍ MỞ: Trượt lên 50% để tạo hiệu ứng kéo thư ra */
+            transform: translateY(-50%); 
+            opacity: 1;
+        }
+        
+        .love-text {
+            color: var(--heart-color);
+            font-weight: 700;
+        }
+
+        /* Hiệu ứng tim bay (BONUS) */
+        .heart-particle {
+            position: absolute;
+            color: var(--heart-color);
+            font-size: 1em;
+            pointer-events: none;
+            opacity: 0;
+            animation: heart-float 4s forwards;
+            z-index: 20;
+        }
+
+        /* Keyframes */
+        @keyframes heart-float {
+            0% { transform: translateY(0) rotate(0deg); opacity: 1; }
+            50% { opacity: 0.8; }
+            100% { transform: translateY(-500px) rotate(720deg); opacity: 0; }
+        }
+        @keyframes pulse-hint {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="envelope-container" onclick="openEnvelope()">
+        <div class="envelope">
+            <div class="flap"></div>
+            <div class="letter">
+                <p><strong>Gửi mày,</strong></p> 
+                <p>hello, t biết bây giờ cố thể t đang làm phiền đến thời gian của mày nma nhân dịp này t cũng muốn gửi đến mày vài lời, mong m dành chút thời gian cho t nhaa. Thực sự trong khoảng thời gian qua t chưa bao giờ ngưng nghĩ về việc này. Những gì t làm khiến t với m ngừng lại trong lúc t đặt tình cảm nhiều nhất. Cách t thể hiện tình cảm dành cho m có lẽ nó đã đi xa hơi thái quá và trẻ con. Kiểu t bị ảnh hưởng từ lúc trước, cứ sợ m nghĩ là t lạnh nhạt với mày này kia nên lúc nào cũng muốn thể hiện ra cho m thấy tình cảm t dành cho m nó lớn cỡ nào. T cũng đã nhận ra mình sai ở đâu rồi, t có sửa, chắc chắn sẽ sửa, nhưng t cần thời gian. T biết m cũng hiểu mà. Nếu thực sự bây giờ m vẫn chưa tìm được cho mình 1 đối tượng mà m có thể đặt niềm tin vào, thì cho t 1 cơ hội để làm lại nha, mình bắt đầu lại từ đầu. Thực sự thời gian qua t đã suy nghĩ kĩ và cũng như để m có 1 thời gian để có thể thư giãn, nghỉ ngơi. Nếu được thì lần này hãy cứ thử 1 lần nữa đặt niềm tin ở t, 1 lần nữa cho t cơ hội để chứng kiến t đã thay đổi thế nào. M biết t là sao mà, nói được thì làm được. T vẫn ghi nhận lại những góp ý của m và cũng như chịu sửa đổi. Chỉ cần m chịu đặt niềm tin và chia sẻ với t thì mọi thứ đều trở nên đơn giản. Nên là, cho t thêm 1 cơ hội nha, 1 lần nữa được đồng hành cùng m, 1 lần nữa được cùng m đi dạo, cũng như 1 lần nữa được hỗ trợ, cũng như cùng nhau tiến bộ hơn. Ngennnnnnn, nếu được thì t mong sẽ có 1 cuộc gặp gỡ, 1 cuộc nói chuyện để có thể bày tỏ rõ lại những gì t nghĩ trong đầu thời gian qua. Cứ từ từ suy nghĩ, thoải mái, t vẫn là người luôn đợi m ở đây và chờ câu trả lời của m. 20/10 vui vẻ, chúc những thứ xung quanh m đều sẽ nhẹ nhàng với m, chúc m tất cả-- .</p>
+                <p>t cũng chỉ muốn nói là...:</p> <p><span class="love-text">**t chờ m**</span></p>
+                <p>Cho t thêm 1 cơ hội cuối nha?</p>
+                <p style="margin-top: 30px; font-size: 18px;">Luvvvv,<br> [codebyTrvii] ❤️</p>
+            </div>
+        </div>	
+    </div>
+    <div id="hint">💌 20/11 vui veee 💌</div>
+
+    <script>
+        function openEnvelope() {
+            const container = document.querySelector('.envelope-container');
+            const hint = document.getElementById('hint');
+            
+            // Nếu thư đã mở, đóng lại
+            if (container.classList.contains('open')) {
+                 container.classList.remove('open');
+                 hint.textContent = "💌 20/11 vui veee 💌";
+            } else {
+                 // Nếu thư chưa mở, mở ra
+                 container.classList.add('open');
+                 hint.textContent = "cứ cho bản thân thêm thời gian suy nghĩ!";
+                 
+                 // Kích hoạt hiệu ứng tim bay
+                 if (typeof createHearts === 'function') {
+                    createHearts();
+                 }
+            }
+        }
+        
+        function createHearts() {
+            const container = document.querySelector('body');
+            const heartIcons = ['❤️', '💖', '✨', '💌'];
+            
+            for (let i = 0; i < 20; i++) {
+                const heart = document.createElement('div');
+                heart.classList.add('heart-particle');
+                
+                // Chọn ngẫu nhiên icon
+                heart.textContent = heartIcons[Math.floor(Math.random() * heartIcons.length)];
+                
+                // Đặt vị trí ngẫu nhiên trên màn hình
+                heart.style.left = `${Math.random() * 100}vw`;
+                heart.style.bottom = `-20px`; // Bắt đầu từ dưới màn hình
+                heart.style.animationDelay = `${Math.random() * 2}s`; // Delay ngẫu nhiên
+                heart.style.fontSize = `${1 + Math.random() * 1.5}em`; // Cỡ ngẫu nhiên
+                
+                container.appendChild(heart);
+                
+                // Xóa tim sau khi hiệu ứng kết thúc để tránh làm nặng trang
+                heart.addEventListener('animationend', () => {
+                    heart.remove();
+                });
+            }
+        }
+    </script>
+
+</body>
+</html>
